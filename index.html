@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo tienda de terror y coleccionismo · WhiteMoon</title>
+<meta name="description" content="Demo de propuesta de WhiteMoon Agencia IA: tienda de terror y coleccionismo rápida, con cesta y asistente IA de regalos. No es la tienda oficial.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#212224">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23212224'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%239FC32A'%3E%E2%98%A0%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://muertosderisa.com" crossorigin>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="demo-bar" role="note">Demo de propuesta de <strong>WhiteMoon</strong> · No es la tienda oficial · El pago es simulado</div>
+
+<header class="top">
+  <a class="logo" href="#" aria-label="Inicio de la tienda demo"><span class="logo-skull" aria-hidden="true">☠</span> MUERTOS <em>DE RISA</em></a>
+  <label class="search"><span class="sr">Buscar entre las rarezas</span><input id="q" type="search" placeholder="Buscar entre las rarezas" autocomplete="off"></label>
+  <button class="cart-btn" id="openCart" aria-label="Abrir cesta">Cesta <span id="cartCount">0</span></button>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="kicker">Tienda de terror, humor y coleccionismo</p>
+    <h1>TERROR, HUMOR<br>Y <span>RAREZAS.</span></h1>
+    <p class="lead">Coleccionismo, decoración y creaciones propias para amantes del terror a los que lo normal se les queda un poco corto.</p>
+    <div class="cta">
+      <a class="btn" href="#tienda">Ver la tienda</a>
+      <button class="btn ghost" id="heroAgent" type="button">Ayúdame a elegir un regalo</button>
+    </div>
+  </section>
+
+  <div class="ticker" aria-hidden="true"><div><span>Scream</span><span>Terrifier</span><span>Stranger Things</span><span>Halloween</span><span>IT</span><span>Trick 'r Treat</span><span>La Matanza de Texas</span><span>Godzilla</span><span>Scream</span><span>Terrifier</span><span>Stranger Things</span><span>Halloween</span><span>IT</span><span>Trick 'r Treat</span><span>La Matanza de Texas</span><span>Godzilla</span></div></div>
+
+  <section id="tienda" class="shop">
+    <div class="shop-head">
+      <h2>Los favo<span>gritos</span></h2>
+      <p id="count" class="muted" aria-live="polite"></p>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Filtrar por categoría"></div>
+    <div class="sort"><label>Ordenar <select id="sort"><option value="">Destacados</option><option value="asc">Precio: de menor a mayor</option><option value="desc">Precio: de mayor a menor</option></select></label></div>
+    <div class="grid" id="grid"></div>
+    <p id="empty" class="muted" hidden>No hemos desenterrado nada con ese filtro. Prueba con otra búsqueda.</p>
+  </section>
+
+  <section class="why">
+    <h2>Lo que cambia con esta propuesta</h2>
+    <ul>
+      <li><strong>Carga rápida en móvil.</strong> Imágenes ligeras con tamaño adaptado y sin scripts que bloqueen la página.</li>
+      <li><strong>Asistente IA de regalos.</strong> Recomienda según la peli, el presupuesto y para quién es, y recoge el contacto si el cliente quiere que le avisen.</li>
+      <li><strong>Mismo catálogo, misma marca.</strong> Los productos y precios son los de su tienda actual (a fecha de la demo).</li>
+    </ul>
+    <p class="muted small">Demo creada por <a href="https://whitemoon.es">WhiteMoon Agencia IA</a>. Las fotos se cargan desde la tienda original. Pagos y envíos no están conectados.</p>
+  </section>
+</main>
+
+<footer class="foot"><span>Demo WhiteMoon · whitemoon.es</span></footer>
+
+<!-- Ficha de producto -->
+<dialog id="pdp" aria-labelledby="pdpTitle">
+  <button class="x" id="pdpClose" aria-label="Cerrar">×</button>
+  <div class="pdp-body">
+    <div class="gal"><img id="pdpImg" alt="" width="600" height="600"><div class="thumbs" id="thumbs"></div></div>
+    <div class="info">
+      <p class="muted small" id="pdpFr"></p>
+      <h3 id="pdpTitle"></h3>
+      <p class="price" id="pdpPrice"></p>
+      <button class="btn" id="pdpAdd" type="button">Agregar a la cesta</button>
+      <p class="muted small">Ficha completa y disponibilidad real en la tienda oficial.</p>
+      <a class="muted small" id="pdpLink" target="_blank" rel="noopener">Ver en muertosderisa.com ↗</a>
+    </div>
+  </div>
+</dialog>
+
+<!-- Cesta -->
+<aside id="cart" class="cart" aria-label="Cesta" aria-hidden="true">
+  <div class="cart-h"><h3>Tu cesta</h3><button class="x" id="closeCart" aria-label="Cerrar cesta">×</button></div>
+  <div id="cartItems" class="cart-items"></div>
+  <div class="cart-f">
+    <div class="sub"><span>Subtotal</span><strong id="subtotal">0,00 €</strong></div>
+    <button class="btn full" id="checkout" type="button">Finalizar compra</button>
+    <p id="checkoutMsg" class="muted small" role="status"></p>
+  </div>
+</aside>
+<div id="scrim" class="scrim" hidden></div>
+
+<!-- Agente IA -->
+<button id="agentFab" class="fab" aria-label="Abrir asistente IA de regalos">☠<span>Asistente</span></button>
+<section id="agent" class="agent" aria-label="Asistente IA" hidden>
+  <header><strong>Asistente IA</strong><span class="muted small">Regalos de terror</span><button class="x" id="agentClose" aria-label="Cerrar asistente">×</button></header>
+  <div id="msgs" class="msgs" aria-live="polite"></div>
+  <div id="opts" class="opts"></div>
+  <form id="agentForm" class="agent-form" hidden>
+    <input id="agentInput" autocomplete="off" aria-label="Escribe aquí">
+    <button class="btn sm" type="submit">Enviar</button>
+  </form>
+</section>
+
+<script src="products.js" defer></script>
+<script src="assets/app.js" defer></script>
+</body>
+</html>
