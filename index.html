@@ -37,14 +37,16 @@
   <div class="ticker" aria-hidden="true"><div><span>Scream</span><span>Terrifier</span><span>Stranger Things</span><span>Halloween</span><span>IT</span><span>Trick 'r Treat</span><span>La Matanza de Texas</span><span>Godzilla</span><span>Scream</span><span>Terrifier</span><span>Stranger Things</span><span>Halloween</span><span>IT</span><span>Trick 'r Treat</span><span>La Matanza de Texas</span><span>Godzilla</span></div></div>
 
   <section id="tienda" class="shop">
+    <nav class="tabs" id="tabs" aria-label="Secciones de la tienda"></nav>
+    <div class="subtabs" id="subtabs" role="group" aria-label="Categorías"></div>
     <div class="shop-head">
-      <h2>Los favo<span>gritos</span></h2>
+      <h2 id="tabTitle">Todo</h2>
       <p id="count" class="muted" aria-live="polite"></p>
     </div>
-    <div class="filters" id="filters" role="group" aria-label="Filtrar por categoría"></div>
     <div class="sort"><label>Ordenar <select id="sort"><option value="">Destacados</option><option value="asc">Precio: de menor a mayor</option><option value="desc">Precio: de mayor a menor</option></select></label></div>
     <div class="grid" id="grid"></div>
     <p id="empty" class="muted" hidden>No hemos desenterrado nada con ese filtro. Prueba con otra búsqueda.</p>
+    <div class="more"><button class="btn ghost" id="more" type="button" hidden>Ver más</button></div>
   </section>
 
   <section class="why">
@@ -52,7 +54,7 @@
     <ul>
       <li><strong>Carga rápida en móvil.</strong> Imágenes ligeras con tamaño adaptado y sin scripts que bloqueen la página.</li>
       <li><strong>Asistente IA de regalos.</strong> Recomienda según la peli, el presupuesto y para quién es, y recoge el contacto si el cliente quiere que le avisen.</li>
-      <li><strong>Mismo catálogo, misma marca.</strong> Los productos y precios son los de su tienda actual (a fecha de la demo).</li>
+      <li><strong>Mismo catálogo, misma marca.</strong> Todo su catálogo (más de 600 productos) con sus precios a fecha de la demo. Las pestañas siguen el menú de su tienda; el reparto de cada producto por pestaña es aproximado.</li>
     </ul>
     <p class="muted small">Demo creada por <a href="https://whitemoon.es">WhiteMoon Agencia IA</a>. Las fotos se cargan desde la tienda original. Pagos y envíos no están conectados.</p>
   </section>

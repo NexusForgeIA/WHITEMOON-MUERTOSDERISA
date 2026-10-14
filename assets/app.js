@@ -1,6 +1,7 @@
 (function(){
 'use strict';
-var P=window.PRODUCTS||[],$=function(s){return document.querySelector(s)};
+var IMGB='https://cdn.shopify.com/s/files/1/1057/6612/5832/files/';
+var P=(window.PRODUCTS||[]).map(function(d){return{id:d.i,name:d.n.split(' – ')[0],full:d.n,price:d.p,av:d.a,fr:d.f||d.c,f:d.f,cat:d.c,t:d.t,url:'https://muertosderisa.com/products/'+d.i,imgs:d.m.map(function(m){return IMGB+m})}}),$=function(s){return document.querySelector(s)};
 var LEAD_URL='https://mlaqtniujnvfxcvcourm.supabase.co/functions/v1/muertosderisa-lead';
 var fmt=function(n){return n.toFixed(2).replace('.',',')+' €'};
 var img=function(u,w){return u+(u.indexOf('?')>-1?'&':'?')+'width='+w};
@@ -26,30 +27,49 @@ $('#cartItems').addEventListener('click',function(e){var b=e.target.closest('but
 $('#openCart').onclick=function(){openCart(true)};$('#closeCart').onclick=$('#scrim').onclick=function(){openCart(false)};
 $('#checkout').onclick=function(){$('#checkoutMsg').textContent='Esto es una demo: aquí se conectaría el pago real de la tienda. No se ha hecho ningún cargo.'};
 
-/* ---------- catálogo ---------- */
-var state={cat:'Todo',q:'',sort:''};
-var cats=['Todo'].concat(P.map(function(p){return p.cat}).filter(function(c,i,a){return a.indexOf(c)===i}));
-$('#filters').innerHTML=cats.map(function(c){return '<button class="chip" aria-pressed="'+(c==='Todo')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>'}).join('');
-$('#filters').addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;state.cat=b.dataset.c;[].forEach.call(document.querySelectorAll('.chip'),function(x){x.setAttribute('aria-pressed',x===b)});renderGrid()});
-$('#q').addEventListener('input',function(e){state.q=e.target.value.toLowerCase().trim();renderGrid()});
-$('#sort').addEventListener('change',function(e){state.sort=e.target.value;renderGrid()});
-function renderGrid(){
-  var L=P.filter(function(p){return(state.cat==='Todo'||p.cat===state.cat)&&(!state.q||(p.full+' '+p.fr).toLowerCase().indexOf(state.q)>-1)});
+/* ---------- catálogo y pestañas ---------- */
+var TN=window.TABS||[];
+var T={novedades:'Novedades','funko-pop':'Funko POP',figuras:'Figuras y coleccionables',videojuegos:'Videojuegos','urban-flowers':'Urban Flowers',decoracion:'Decoración',tazas:'Jarras, copas y tazas',mochilas:'Mochilas, bolsos y carteras',peluches:'Peluches',libros:'Libros, cómic y manga',joyeria:'Joyería y complementos',juegos:'Juegos de mesa y puzzles',mascaras:'Máscaras y disfraces',ropa:'Ropa y camisetas',cine:'Películas de terror',blind:'Cajas sorpresa · Blind boxes','menos-20':'Regalos de terror por menos de 20 €','menos-40':'Regalos de terror por menos de 40 €',originales:'Regalos originales de terror',coleccionistas:'Terror para coleccionistas',favogritos:'FavoGritos'};
+var GROUPS=[{k:'todo',l:'Todo'},{k:'novedades',l:'Novedades',tab:'novedades'},{k:'tienda',l:'Tienda',subs:['funko-pop','figuras','videojuegos','urban-flowers','decoracion','tazas','mochilas','peluches','libros','joyeria','juegos','mascaras','ropa','cine','blind']},{k:'regalos',l:'Regalos',subs:['menos-20','menos-40','originales','coleccionistas']},{k:'favogritos',l:'FavoGritos',tab:'favogritos'}];
+var PAGE=24,state={g:'todo',s:'',q:'',sort:'',n:PAGE};
+function tid(k){return TN.indexOf(k)}
+function inTab(p,k){return p.t.indexOf(tid(k))>-1}
+function count(k){return P.filter(function(p){return inTab(p,k)}).length}
+function groupItems(g){return g.subs?P.filter(function(p){return g.subs.some(function(k){return inTab(p,k)})}):g.tab?P.filter(function(p){return inTab(p,g.tab)}):P}
+function readHash(){var m=location.hash.match(/^#(?:tab=)?([a-z0-9-]+)(?:\/([a-z0-9-]+))?/);if(!m)return;var g=GROUPS.filter(function(x){return x.k===m[1]})[0];if(g){state.g=g.k;state.s=m[2]&&g.subs&&g.subs.indexOf(m[2])>-1?m[2]:''}}
+function writeHash(){var h=state.g==='todo'?'':'#'+state.g+(state.s?'/'+state.s:'');if(location.hash!==h&&(h||location.hash.indexOf('#tab')===0||GROUPS.some(function(x){return location.hash==='#'+x.k})))history.replaceState(null,'',h||location.pathname)}
+function renderTabs(){
+  $('#tabs').innerHTML=GROUPS.map(function(g){return '<button class="tab" aria-pressed="'+(g.k===state.g)+'" data-g="'+g.k+'">'+esc(g.l)+(g.subs?' ▾':'')+'</button>'}).join('');
+  var g=GROUPS.filter(function(x){return x.k===state.g})[0],sb=$('#subtabs');
+  if(g&&g.subs){sb.hidden=false;sb.innerHTML='<button class="chip" aria-pressed="'+(!state.s)+'" data-s="">Todo ('+groupItems(g).length+')</button>'+g.subs.map(function(k){return '<button class="chip" aria-pressed="'+(state.s===k)+'" data-s="'+k+'">'+esc(T[k])+' ('+count(k)+')</button>'}).join('')}else{sb.hidden=true;sb.innerHTML=''}
+}
+$('#tabs').addEventListener('click',function(e){var b=e.target.closest('.tab');if(!b)return;state.g=b.dataset.g;state.s='';state.n=PAGE;renderTabs();renderGrid();writeHash()});
+$('#subtabs').addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;state.s=b.dataset.s;state.n=PAGE;renderTabs();renderGrid();writeHash()});
+$('#q').addEventListener('input',function(e){state.q=e.target.value.toLowerCase().trim();state.n=PAGE;renderGrid()});
+$('#sort').addEventListener('change',function(e){state.sort=e.target.value;state.n=PAGE;renderGrid()});
+$('#more').onclick=function(){state.n+=PAGE;renderGrid(true)};
+function renderGrid(keep){
+  var g=GROUPS.filter(function(x){return x.k===state.g})[0];
+  var L=state.q?P:state.s?P.filter(function(p){return inTab(p,state.s)}):groupItems(g);
+  if(state.q)L=L.filter(function(p){return (p.full+' '+p.fr).toLowerCase().indexOf(state.q)>-1});
   if(state.sort)L=L.slice().sort(function(a,b){return state.sort==='asc'?a.price-b.price:b.price-a.price});
-  $('#grid').innerHTML=L.map(function(p,i){
+  var tot=L.length,V=L.slice(0,state.n);
+  $('#tabTitle').textContent=state.q?'Resultados para «'+state.q+'»':(state.s?T[state.s]:g.l==='Todo'?'Todo el catálogo':g.l);
+  $('#grid').innerHTML=V.map(function(p,i){
     var u=p.imgs[0];
-    return '<article class="card"><button class="ph" data-open="'+p.id+'" aria-label="Ver '+esc(p.name)+'"><img src="'+img(u,400)+'" srcset="'+img(u,300)+' 300w,'+img(u,450)+' 450w,'+img(u,600)+' 600w" sizes="(max-width:600px) 46vw,230px" width="400" height="400" alt="'+esc(p.name)+'" '+(i<4?'fetchpriority="high"':'loading="lazy"')+' decoding="async"></button><div class="b"><span class="fr">'+esc(p.fr)+'</span><h3 data-open="'+p.id+'">'+esc(p.name)+'</h3><div class="pr">'+fmt(p.price)+'</div><button class="btn" data-add="'+p.id+'">Agregar</button></div></article>'}).join('');
-  $('#empty').hidden=!!L.length;$('#count').textContent=L.length+' productos';
+    return '<article class="card'+(p.av?'':' out')+'"><button class="ph" data-open="'+p.id+'" aria-label="Ver '+esc(p.name)+'"><img src="'+img(u,400)+'" srcset="'+img(u,300)+' 300w,'+img(u,450)+' 450w,'+img(u,600)+' 600w" sizes="(max-width:600px) 46vw,230px" width="400" height="400" alt="'+esc(p.name)+'" '+(i<4&&!keep?'fetchpriority="high"':'loading="lazy"')+' decoding="async"></button><div class="b"><span class="fr">'+esc(p.fr)+'</span><h3 data-open="'+p.id+'">'+esc(p.name)+'</h3><div class="pr">'+fmt(p.price)+'</div>'+(p.av?'<button class="btn" data-add="'+p.id+'">Agregar</button>':'<button class="btn" disabled>Agotado</button>')+'</div></article>'}).join('');
+  $('#empty').hidden=!!tot;$('#count').textContent=tot+' productos';$('#more').hidden=tot<=state.n;
 }
 $('#grid').addEventListener('click',function(e){
   var a=e.target.closest('[data-add]');if(a){add(a.dataset.add);openCart(true);return}
   var o=e.target.closest('[data-open]');if(o)openPdp(o.dataset.open)});
+window.addEventListener('hashchange',function(){readHash();state.n=PAGE;renderTabs();renderGrid()});
 
 /* ---------- ficha ---------- */
 var cur=null,dlg=$('#pdp');
 function setImg(u,alt){var i=$('#pdpImg');i.src=img(u,700);i.alt=alt}
 function openPdp(id){
-  var p=byId[id];cur=p;$('#pdpTitle').textContent=p.name;$('#pdpFr').textContent=p.fr+' · '+p.cat;$('#pdpPrice').textContent=fmt(p.price);$('#pdpLink').href=p.url;
+  var p=byId[id];cur=p;$('#pdpTitle').textContent=p.name;$('#pdpFr').textContent=p.fr+' · '+p.cat;$('#pdpPrice').textContent=fmt(p.price);$('#pdpAdd').disabled=!p.av;$('#pdpAdd').textContent=p.av?'Agregar a la cesta':'Agotado';$('#pdpLink').href=p.url;
   setImg(p.imgs[0],p.name);
   $('#thumbs').innerHTML=p.imgs.length>1?p.imgs.map(function(u,i){return '<button data-i="'+i+'" aria-label="Foto '+(i+1)+'" '+(i?'':'aria-current="true"')+'><img src="'+img(u,112)+'" width="56" height="56" alt="" loading="lazy"></button>'}).join(''):'';
   if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','')
@@ -80,8 +100,8 @@ function askBudget(){
 }
 function recommend(){
   var min=ag.max===70?30:ag.max===130?70:ag.max===9999?130:0;
-  var L=P.map(function(p){var s=0;if(ag.fr&&p.fr===ag.fr)s+=4;if(p.price>=min&&p.price<=ag.max)s+=3;else s-=Math.abs(p.price-(min+ag.max)/2)/100;return{p:p,s:s}}).sort(function(a,b){return b.s-a.s}).slice(0,3);
-  say(ag.fr&&L[0].p.fr!==ag.fr?'De '+ag.fr+' no tengo nada en ese rango, pero mira estas rarezas que encajan:':'Te recomiendo estas '+L.length+' opciones:');
+  var L=P.filter(function(p){return p.av}).map(function(p){var s=0;if(ag.fr&&p.f===ag.fr)s+=4;if(p.price>=min&&p.price<=ag.max)s+=3;else s-=Math.abs(p.price-(min+ag.max)/2)/100;return{p:p,s:s}}).sort(function(a,b){return b.s-a.s}).slice(0,3);
+  say(ag.fr&&L[0].p.f!==ag.fr?'De '+ag.fr+' no tengo nada en ese rango, pero mira estas rarezas que encajan:':'Te recomiendo estas '+L.length+' opciones:');
   L.forEach(function(x){var p=x.p,d=document.createElement('div');d.className='rec';d.innerHTML='<img src="'+img(p.imgs[0],112)+'" width="56" height="56" alt="" loading="lazy"><div><strong>'+esc(p.name)+'</strong><br>'+fmt(p.price)+'<br><button data-id="'+p.id+'">Agregar a la cesta</button></div>';d.querySelector('button').onclick=function(){add(p.id);openCart(true)};msgs.appendChild(d)});
   msgs.scrollTop=msgs.scrollHeight;ag.pick=L.map(function(x){return x.p.name}).join(' | ');
   choose([{l:'Quiero que me avisen de novedades',v:'lead'},{l:'Empezar de nuevo',v:'again'}],function(v){if(v==='again'){ag.started=false;start()}else askName()})
@@ -103,5 +123,5 @@ $('#agentFab').onclick=function(){toggleAgent($('#agent').hidden)};
 $('#agentClose').onclick=function(){toggleAgent(false)};
 $('#heroAgent').onclick=function(){toggleAgent(true)};
 
-renderGrid();renderCart();
+readHash();renderTabs();renderGrid();renderCart();
 })();
